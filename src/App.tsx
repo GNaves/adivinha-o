@@ -18,12 +18,15 @@ function App() {
   const [letter, setLetter] = useState(""); // Letra digitada pelo usuário
   const [lettersUsed, setLettersUsed] = useState<LettersUsedProps[]>([]); // Letras já utilizadas
   const [challenge, setChallenge] = useState<Challenge | null>(null); // Desafio atual (palavra + dica)
+  const [shake, setShake] = useState(false);
 
-  const attempts = 5
+  const attempts = 5;
 
   // Função para reiniciar o jogo (ainda não implementada completamente)
   const HandleRestarGame = () => {
-    const isConfirmed = window.confirm("Você tem certeza que deseja reiniciar o jogo?");
+    const isConfirmed = window.confirm(
+      "Você tem certeza que deseja reiniciar o jogo?"
+    );
     if (isConfirmed) {
       startGame(); // Inicia um novo jogo
     }
@@ -63,6 +66,13 @@ function App() {
     setLettersUsed((prevState) => [...prevState, { value, correct }]);
     setScore(currentScore); // Atualiza a pontuação
     setLetter(""); // Limpa o input
+
+    if (!correct) {
+      setShake(true);
+      setTimeout(() => {
+        setShake(false);
+      }, 300);
+    }
   };
 
   // Função para iniciar um novo jogo
@@ -77,9 +87,9 @@ function App() {
   };
 
   const endGame = (mensagem: string) => {
-    alert(mensagem)
-    startGame()
-  }
+    alert(mensagem);
+    startGame();
+  };
 
   // Efeito que roda uma vez ao montar o componente para iniciar o jogo
   useEffect(() => {
@@ -87,19 +97,19 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if(!challenge) {
+    if (!challenge) {
       return;
     }
 
     setTimeout(() => {
-      if(score === challenge.word.length) {
-       return endGame("Parabéns, você ganhou!");
+      if (score === challenge.word.length) {
+        return endGame("Parabéns, você ganhou!");
       }
-      if(lettersUsed.length === challenge.word.length + attempts) {
+      if (lettersUsed.length === challenge.word.length + attempts) {
         return endGame("Você perdeu!");
       }
     }, 1000);
-  }, [score,lettersUsed.length]);
+  }, [score, lettersUsed.length]);
 
   // Se não houver desafio, não renderiza nada
   if (!challenge) {
@@ -121,7 +131,7 @@ function App() {
         <Tip tip={challenge.tip} />
 
         {/* Exibe os espaços para as letras da palavra (ainda não implementado completamente) */}
-        <div className={styles.word}>
+        <div className={`${styles.word} ${shake && styles.shake}`}>
           {challenge.word.split("").map((letter, index) => {
             const letterUsed = lettersUsed.find(
               (used) => used.value.toUpperCase() === letter.toUpperCase()
